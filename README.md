@@ -7,11 +7,11 @@ func InverseProduct (a Matrix, b Matrix) {
     b_inv_future := InverseFuture(b);
     a_inv := <−a_inv_future;
     b_inv := <−b_inv_future;
-    returnProduct(a_inv, b_inv);
+    return Product(a_inv, b_inv);
 }
 func InverseFuture (a Matrix) {
     future := make (chan Matrix);
     go func () { future <− Inverse(a) }();
-    returnfuture;
+    return future;
 }
 ```
