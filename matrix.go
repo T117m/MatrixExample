@@ -12,6 +12,20 @@ func NewMatrix(n int) Matrix {
 	return a
 }
 
+func CompareSize(a, b Matrix) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if len(a[i]) != len(b[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func Product(a, b Matrix) Matrix {
 }
 
