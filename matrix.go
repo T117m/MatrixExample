@@ -123,7 +123,7 @@ func adj(a Matrix) Matrix {
 	return transpose(b)
 }
 
-func multiply(x float64, a Matrix) Matrix {
+func div(a Matrix, x float64) Matrix {
 	var (
 		n = len(a)
 		b = NewMatrix(n)
@@ -131,7 +131,7 @@ func multiply(x float64, a Matrix) Matrix {
 
 	for i := range n {
 		for j := range n {
-			b[i][j] = x * a[i][j]
+			b[i][j] = a[i][j] / x
 		}
 	}
 
