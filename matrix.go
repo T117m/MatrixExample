@@ -67,7 +67,7 @@ func minor(a Matrix, x, y int) int {
 	for i := range n {
 		tmp := m[i]
 		m[i] = m[i][:y]
-		m[i] = append(m[i], tmp[x+1:]...)
+		m[i] = append(m[i], tmp[y+1:]...)
 	}
 
 	return determinant(m)
