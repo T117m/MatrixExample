@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type Matrix [][]int
 
 func NewMatrix(n int) Matrix {
@@ -42,6 +44,45 @@ func Product(a, b Matrix) Matrix {
 	}
 
 	return c
+}
+
+func determinant(a Matrix) int {
+	n := len(a)
+
+	if n == 1 {
+		return a[0][0]
+	}
+
+	if n == 2 {
+		return a[0][0]*a[1][1] - a[0][1]*a[1][0]
+	}
+
+	var det int
+
+	for j := range n {
+		minor := a[1:]
+
+		switch j {
+		case 0:
+			for i := range n - 1 {
+				minor[i] = minor[i][1:]
+			}
+		case n - 1:
+			for i := range n - 1 {
+				minor[i] = minor[i][:len(minor)]
+			}
+		default:
+			for i := range n - 1 {
+				tmp := minor[i]
+				minor[i] = minor[i][:j]
+				minor[i] = append(minor[i], tmp[j+1:]...)
+			}
+		}
+
+		det += int(math.Pow(float64(-1), float64(1+j))) * a[0][j] * determinant(minor)
+	}
+
+	return det
 }
 
 func Inverse(a Matrix) Matrix {
