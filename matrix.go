@@ -85,6 +85,21 @@ func determinant(a Matrix) int {
 	return det
 }
 
+func transpose(a Matrix) Matrix {
+	var (
+		n = len(a)
+		t = NewMatrix(n)
+	)
+
+	for i := range n {
+		for j := range n {
+			t[i][j] = a[j][i]
+		}
+	}
+
+	return t
+}
+
 func Inverse(a Matrix) Matrix {
 }
 
