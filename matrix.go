@@ -123,6 +123,21 @@ func adj(a Matrix) Matrix {
 	return transpose(b)
 }
 
+func multiply(x float64, a Matrix) Matrix {
+	var (
+		n = len(a)
+		b = NewMatrix(n)
+	)
+
+	for i := range n {
+		for j := range n {
+			b[i][j] = x * a[i][j]
+		}
+	}
+
+	return b
+}
+
 func Inverse(a Matrix) Matrix {
 }
 
