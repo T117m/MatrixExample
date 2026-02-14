@@ -46,40 +46,63 @@ func Product(a, b Matrix) Matrix {
 	return c
 }
 
-func determinant(a Matrix) int {
-	n := len(a)
-
-	if n == 1 {
+func simpleDet(a Matrix) int {
+	if len(a) == 1 {
 		return a[0][0]
 	}
 
-	if n == 2 {
-		return a[0][0]*a[1][1] - a[0][1]*a[1][0]
+	return a[0][0]*a[1][1] - a[0][1]*a[1][0]
+}
+
+func minor(a Matrix, x, y int) int {
+	n := len(a)
+
+	if n < 3 {
+		return simpleDet(a)
+	}
+
+	m := a[:x]
+	m = append(m, a[x+1:]...)
+
+	for i := range n {
+		tmp := m[i]
+		m[i] = m[i][:y]
+		m[i] = append(m[i], tmp[x+1:]...)
+	}
+
+	return determinant(m)
+}
+
+func determinant(a Matrix) int {
+	n := len(a)
+
+	if n < 3 {
+		return simpleDet(a)
 	}
 
 	var det int
 
 	for j := range n {
-		minor := a[1:]
+		m := a[1:]
 
 		switch j {
 		case 0:
 			for i := range n - 1 {
-				minor[i] = minor[i][1:]
+				m[i] = m[i][1:]
 			}
 		case n - 1:
 			for i := range n - 1 {
-				minor[i] = minor[i][:len(minor)]
+				m[i] = m[i][:len(m)]
 			}
 		default:
 			for i := range n - 1 {
-				tmp := minor[i]
-				minor[i] = minor[i][:j]
-				minor[i] = append(minor[i], tmp[j+1:]...)
+				tmp := m[i]
+				m[i] = m[i][:j]
+				m[i] = append(m[i], tmp[j+1:]...)
 			}
 		}
 
-		det += int(math.Pow(float64(-1), float64(1+j))) * a[0][j] * determinant(minor)
+		det += int(math.Pow(float64(-1), float64(1+j))) * a[0][j] * minor(m, 0, j)
 	}
 
 	return det
@@ -98,6 +121,15 @@ func transpose(a Matrix) Matrix {
 	}
 
 	return t
+}
+
+func adj(a Matrix) Matrix {
+	var (
+		n = len(a)
+		b = NewMatrix(n)
+	)
+
+	return b
 }
 
 func Inverse(a Matrix) Matrix {
