@@ -83,26 +83,7 @@ func determinant(a Matrix) int {
 	var det int
 
 	for j := range n {
-		m := a[1:]
-
-		switch j {
-		case 0:
-			for i := range n - 1 {
-				m[i] = m[i][1:]
-			}
-		case n - 1:
-			for i := range n - 1 {
-				m[i] = m[i][:len(m)]
-			}
-		default:
-			for i := range n - 1 {
-				tmp := m[i]
-				m[i] = m[i][:j]
-				m[i] = append(m[i], tmp[j+1:]...)
-			}
-		}
-
-		det += int(math.Pow(float64(-1), float64(1+j))) * a[0][j] * minor(m, 0, j)
+		det += int(math.Pow(float64(-1), float64(1+j))) * a[0][j] * minor(a, 0, j)
 	}
 
 	return det
