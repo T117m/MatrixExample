@@ -139,6 +139,7 @@ func div(a Matrix, x float64) Matrix {
 }
 
 func Inverse(a Matrix) Matrix {
+	return div(adj(a), determinant(a))
 }
 
 func InverseProduct(a, b Matrix) Matrix {
