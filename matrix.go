@@ -14,7 +14,7 @@ func NewMatrix(n int) Matrix {
 	return a
 }
 
-func CompareSize(a, b Matrix) bool {
+func compareSize(a, b Matrix) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -29,7 +29,7 @@ func CompareSize(a, b Matrix) bool {
 }
 
 func Product(a, b Matrix) Matrix {
-	if !CompareSize(a, b) {
+	if !compareSize(a, b) {
 		return NewMatrix(0)
 	}
 
@@ -113,6 +113,12 @@ func adj(a Matrix) Matrix {
 		n = len(a)
 		b = NewMatrix(n)
 	)
+
+	for i := range n {
+		for j := range n {
+			b[i][j] = cofactor(a, i, j)
+		}
+	}
 
 	return b
 }
