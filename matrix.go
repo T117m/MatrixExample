@@ -73,6 +73,10 @@ func minor(a Matrix, x, y int) int {
 	return determinant(m)
 }
 
+func cofactor(a Matrix, x, y int) int {
+	return int(math.Pow(float64(-1), float64(x+y))) * a[x][y] * minor(a, x, y)
+}
+
 func determinant(a Matrix) int {
 	n := len(a)
 
@@ -83,7 +87,7 @@ func determinant(a Matrix) int {
 	var det int
 
 	for j := range n {
-		det += int(math.Pow(float64(-1), float64(1+j))) * a[0][j] * minor(a, 0, j)
+		det += cofactor(a, 0, j)
 	}
 
 	return det
