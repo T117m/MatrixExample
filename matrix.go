@@ -57,24 +57,30 @@ func simpleDet(a Matrix) float64 {
 func minor(a Matrix, x, y int) float64 {
 	n := len(a)
 
-	if n < 3 {
+	if n == 1 {
 		return simpleDet(a)
 	}
 
-	m := a[:x]
-	m = append(m, a[x+1:]...)
+	m := NewMatrix(n)
 
-	for i := range n {
+	copy(m, a[:x])
+	if x != n {
+		m = append(m, a[x+1:]...)
+	}
+
+	for i := range n - 1 {
 		tmp := m[i]
 		m[i] = m[i][:y]
-		m[i] = append(m[i], tmp[y+1:]...)
+		if y != n {
+			m[i] = append(m[i], tmp[y+1:]...)
+		}
 	}
 
 	return determinant(m)
 }
 
 func cofactor(a Matrix, x, y int) float64 {
-	return math.Pow(float64(-1), float64(x+y)) * a[x][y] * minor(a, x, y)
+	return math.Pow(float64(-1), float64(x+y)) * minor(a, x, y)
 }
 
 func determinant(a Matrix) float64 {
@@ -87,7 +93,7 @@ func determinant(a Matrix) float64 {
 	var det float64
 
 	for j := range n {
-		det += cofactor(a, 0, j)
+		det += cofactor(a, 0, j) * a[0][j] 
 	}
 
 	return det
