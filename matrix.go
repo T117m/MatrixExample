@@ -120,7 +120,7 @@ func adj(a Matrix) Matrix {
 		}
 	}
 
-	return b
+	return transpose(b)
 }
 
 func Inverse(a Matrix) Matrix {
