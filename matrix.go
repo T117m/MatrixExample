@@ -2,153 +2,177 @@ package main
 
 import "math"
 
-type Matrix [][]float64
-
-func NewMatrix(n int) Matrix {
-	a := make(Matrix, n)
-
-	for i := range a {
-		a[i] = make([]float64, n)
-	}
-
-	return a
+type Matrix struct {
+	Rows, Cols int
+	Data       []float64
 }
 
-func compareSize(a, b Matrix) bool {
-	if len(a) != len(b) {
-		return false
+func NewMatrix(r, c int) *Matrix {
+	return &Matrix{
+		Rows: r,
+		Cols: c,
+		Data: make([]float64, r*c),
+	}
+}
+
+func (m *Matrix) at(i, j int) float64 {
+	return m.Data[i*m.Cols+j]
+}
+
+func (m *Matrix) isSquare() bool {
+	return m.Rows == m.Cols
+}
+
+func Product(a, b Matrix) (*Matrix, bool) {
+	if a.Rows != b.Cols {
+		return &Matrix{}, false
 	}
 
-	for i := range a {
-		if len(a[i]) != len(b[i]) {
-			return false
+	var (
+		m = NewMatrix(a.Rows, b.Cols)
+		n = a.Rows
+	)
+
+	for i := range n {
+		for j := range n {
+			var mul float64
+			for k := range n {
+				mul += a.at(i, k) * b.at(j, k)
+			}
+			m.Data[i*m.Cols+j] = mul
 		}
 	}
 
-	return true
+	return m, true
 }
 
-func Product(a, b Matrix) Matrix {
-	if !compareSize(a, b) {
-		return NewMatrix(0)
+func (m *Matrix) simpleDet() float64 {
+	if m.isSquare() && m.Rows == 2 {
+		return m.at(0, 0)*m.at(1, 1) - m.at(0, 1)*m.at(1, 0)
 	}
 
-	c := NewMatrix(len(a))
+	return 0
+}
 
-	for i := range a {
-		for j := range b {
-			for k := range c {
-				c[i][j] += a[i][k] * b[k][j]
+func (m *Matrix) minorMatrix(y, x int) *Matrix {
+	var (
+		res              = NewMatrix(m.Rows-1, m.Cols-1)
+		vOffset, hOffset = 0, 0
+	)
+
+	for i := range m.Rows {
+		if i == y {
+			hOffset = 1
+			continue
+		}
+
+		for j := range m.Cols {
+			if j == x {
+				vOffset = 1
+				continue
+			}
+
+			res.Data[(i-hOffset)*res.Cols+j-vOffset] = m.at(i, j)
+		}
+
+		vOffset = 0
+	}
+
+	return res
+}
+
+//									   bool: true - row, false - column
+func (m *Matrix) findMostZeros() (int, bool) {
+	var (
+		rZeros = make(map[int]int, m.Rows)
+		cZeros = make(map[int]int, m.Cols)
+
+		maxR, maxC = 0, 0
+	)
+
+	for i := range m.Rows {
+		for j := range m.Cols {
+			if m.at(i, j) == 0 {
+				rZeros[i]++
+				if rZeros[i] > rZeros[maxR] {
+					maxR = i
+				}
+
+				cZeros[i]++
+				if cZeros[i] > cZeros[maxC] {
+					maxC = j
+				}
 			}
 		}
 	}
 
-	return c
+	if cZeros[maxC] > rZeros[maxR] {
+		return maxC, false
+	}
+
+	return maxR, true
 }
 
-func simpleDet(a Matrix) float64 {
-	if len(a) == 1 {
-		return a[0][0]
+func (m *Matrix) laplasDet() float64 {
+	if !m.isSquare() {
+		return 0
 	}
 
-	return a[0][0]*a[1][1] - a[0][1]*a[1][0]
-}
-
-func minor(a Matrix, x, y int) float64 {
-	n := len(a)
-
-	if n == 1 {
-		return simpleDet(a)
+	if m.Rows == 2 {
+		return m.simpleDet()
 	}
 
-	m := NewMatrix(n)
+	var (
+		det          float64
+		index, isRow = m.findMostZeros()
+	)
 
-	copy(m, a[:x])
-	if x != n {
-		m = append(m, a[x+1:]...)
-	}
-
-	for i := range n - 1 {
-		tmp := m[i]
-		m[i] = m[i][:y]
-		if y != n {
-			m[i] = append(m[i], tmp[y+1:]...)
+	if isRow {
+		for j := range m.Cols {
+			det += m.at(index, j) * math.Pow((-1), float64(index+j)) * m.minorMatrix(index, j).laplasDet()
 		}
-	}
-
-	return determinant(m)
-}
-
-func cofactor(a Matrix, x, y int) float64 {
-	return math.Pow(float64(-1), float64(x+y)) * minor(a, x, y)
-}
-
-func determinant(a Matrix) float64 {
-	n := len(a)
-
-	if n < 3 {
-		return simpleDet(a)
-	}
-
-	var det float64
-
-	for j := range n {
-		det += cofactor(a, 0, j) * a[0][j] 
+	} else {
+		for i := range m.Rows {
+			det += m.at(i, index) * math.Pow((-1), float64(i+index)) * m.minorMatrix(i, index).laplasDet()
+		}
 	}
 
 	return det
 }
 
-func transpose(a Matrix) Matrix {
+func (m *Matrix) adjMatrix() *Matrix {
 	var (
-		n = len(a)
-		t = NewMatrix(n)
+		adj = NewMatrix(m.Rows, m.Cols)
 	)
 
-	for i := range n {
-		for j := range n {
-			t[i][j] = a[j][i]
+	for i := range adj.Rows {
+		for j := range adj.Cols {
+			adj.Data[i*adj.Cols+j] = math.Pow((-1), float64(i+j)) * m.minorMatrix(i, j).laplasDet()
 		}
 	}
 
-	return t
+	return adj
 }
 
-func adj(a Matrix) Matrix {
+func (m *Matrix) divide(n float64) *Matrix {
 	var (
-		n = len(a)
-		b = NewMatrix(n)
+		res = NewMatrix(m.Rows, m.Cols)
 	)
 
-	for i := range n {
-		for j := range n {
-			b[i][j] = cofactor(a, i, j)
+	for i := range res.Rows {
+		for j := range res.Cols {
+			res.Data[i*res.Cols+j] = m.at(i, j) / n
 		}
 	}
 
-	return transpose(b)
-}
-
-func div(a Matrix, x float64) Matrix {
-	var (
-		n = len(a)
-		b = NewMatrix(n)
-	)
-
-	for i := range n {
-		for j := range n {
-			b[i][j] = a[i][j] / x
-		}
-	}
-
-	return b
+	return res
 }
 
 func Inverse(a Matrix) Matrix {
-	return div(adj(a), determinant(a))
+	return *a.adjMatrix().divide(a.laplasDet())
 }
 
-func InverseProduct(a, b Matrix) Matrix {
+func InverseProduct(a, b Matrix) (*Matrix, bool) {
 	var (
 		aInvF = InverseFuture(a)
 		bInvF = InverseFuture(b)
