@@ -15,6 +15,22 @@ func NewMatrix(r, c int) *Matrix {
 	}
 }
 
+func (m *Matrix) Fill(rows ...[]float64) {
+	if len(rows) > m.Rows {
+		return
+	}
+
+	for i, row := range rows {
+		if len(row) > m.Cols {
+			return
+		}
+
+		for j, n := range row {
+			m.Data[i*m.Cols+j] = n
+		}
+	}
+}
+
 func (m *Matrix) at(i, j int) float64 {
 	return m.Data[i*m.Cols+j]
 }
@@ -169,7 +185,11 @@ func (m *Matrix) divide(n float64) *Matrix {
 }
 
 func Inverse(a Matrix) Matrix {
-	return *a.adjMatrix().divide(a.laplasDet())
+	if det := a.laplasDet(); det != 0 {
+		return *a.adjMatrix().divide(det)
+	}
+
+	return Matrix{}
 }
 
 func InverseProduct(a, b Matrix) (*Matrix, bool) {
