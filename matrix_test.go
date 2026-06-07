@@ -32,7 +32,7 @@ func TestProduct(t *testing.T) {
 		t.Error("Multiplication failed\n", c)
 	}
 
-	t.Log("c:\n", c)
+	t.Log("c:\n", &c)
 
 	assertEqual(t, b, &c)
 }
@@ -63,7 +63,7 @@ func TestInverse(t *testing.T) {
 		t.Error("Multiplication failed\n", c)
 	}
 
-	t.Log("c:\n", c)
+	t.Log("c:\n", &c)
 
 	assertEqual(t, want, &c)
 }
