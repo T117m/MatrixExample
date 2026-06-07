@@ -39,9 +39,9 @@ func (m *Matrix) isSquare() bool {
 	return m.Rows == m.Cols
 }
 
-func Product(a, b Matrix) (*Matrix, bool) {
+func Product(a, b Matrix) (Matrix, bool) {
 	if a.Rows != b.Cols {
-		return &Matrix{}, false
+		return Matrix{}, false
 	}
 
 	var (
@@ -59,7 +59,7 @@ func Product(a, b Matrix) (*Matrix, bool) {
 		}
 	}
 
-	return m, true
+	return *m, true
 }
 
 func (m *Matrix) simpleDet() float64 {
@@ -192,19 +192,3 @@ func Inverse(a Matrix) Matrix {
 	return Matrix{}
 }
 
-func InverseProduct(a, b Matrix) (*Matrix, bool) {
-	var (
-		aInvF = InverseFuture(a)
-		bInvF = InverseFuture(b)
-		aInv  = <-aInvF
-		bInv  = <-bInvF
-	)
-
-	return Product(aInv, bInv)
-}
-
-func InverseFuture(a Matrix) <-chan Matrix {
-	future := make(chan Matrix)
-	go func() { future <- Inverse(a) }()
-	return future
-}

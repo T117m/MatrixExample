@@ -34,7 +34,7 @@ func TestProduct(t *testing.T) {
 
 	t.Log("c:\n", c)
 
-	assertEqual(t, c, b)
+	assertEqual(t, b, &c)
 }
 
 func TestInverse(t *testing.T) {
@@ -65,7 +65,7 @@ func TestInverse(t *testing.T) {
 
 	t.Log("c:\n", c)
 
-	assertEqual(t, want, c)
+	assertEqual(t, want, &c)
 }
 
 func (m *Matrix) String() string {
